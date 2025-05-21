@@ -5,6 +5,13 @@ gradle
 !**/src/main/**/build/
 !**/src/test/**/build/
 
+#loadtest
+loadtest/logs
+loadtest/*.log
+loadtest/agent.py
+loadtest/ammofile.txt
+loadtest/data
+
 # docker
 .env
 

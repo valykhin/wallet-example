@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+import ru.ivalykhin.wallet.common.retry.OptimisticLockRetryServiceImpl;
+import ru.ivalykhin.wallet.common.retry.RetryableOperation;
 import ru.ivalykhin.wallet.entity.OperationType;
 import ru.ivalykhin.wallet.entity.Wallet;
 import ru.ivalykhin.wallet.exception.InsufficientFundsExceptionWallet;
@@ -24,6 +26,8 @@ public class WalletServiceTest {
     @Mock
     private WalletRepository walletRepository;
 
+    @Mock
+    private OptimisticLockRetryServiceImpl optimisticLockRetryService;
     @InjectMocks
     private WalletService walletService;
 
@@ -35,6 +39,8 @@ public class WalletServiceTest {
                 .id(UUID.randomUUID())
                 .balance(1000L)
                 .build();
+
+        mockRetryOnPerformOperation();
     }
 
     @Test
@@ -143,5 +149,12 @@ public class WalletServiceTest {
         Assertions.assertEquals(actualException.getErrorCode(), exception.getErrorCode());
         verify(walletRepository, times(1)).findById(wallet.getId());
         verify(walletRepository, times(0)).save(wallet);
+    }
+
+    private void mockRetryOnPerformOperation() {
+        when(optimisticLockRetryService.runWithRetry(any())).thenAnswer(invocation -> {
+            RetryableOperation<Wallet> operation = invocation.getArgument(0);
+            return operation.execute();
+        });
     }
 }

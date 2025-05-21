@@ -3,6 +3,7 @@ package ru.ivalykhin.wallet.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.ivalykhin.wallet.common.retry.OptimisticLockRetryService;
 import ru.ivalykhin.wallet.entity.OperationType;
 import ru.ivalykhin.wallet.entity.Wallet;
 import ru.ivalykhin.wallet.exception.InsufficientFundsExceptionWallet;
@@ -16,9 +17,15 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class WalletService {
     private final WalletRepository walletRepository;
+    private final OptimisticLockRetryService optimisticLockRetryService;
+
+    public Wallet processOperation(UUID walletId, OperationType operationType, Long amount) {
+        return optimisticLockRetryService.runWithRetry(
+                () -> performOperation(walletId, operationType, amount));
+    }
 
     @Transactional
-    public Wallet processOperation(UUID walletId, OperationType operationType, Long amount) {
+    public Wallet performOperation(UUID walletId, OperationType operationType, Long amount) {
         Wallet wallet = walletRepository.findById(walletId)
                 .orElseThrow(() -> new WalletNotFoundException(walletId));
 

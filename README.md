@@ -29,3 +29,7 @@
   - SPRING_DATASOURCE_USERNAME=<username>
   - SPRING_DATASOURCE_PASSWORD=<password>
 - Выполнить команду ```docker-compose up -d```
+
+## Swagger
+/swagger-ui/index.html
+
