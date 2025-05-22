@@ -4,4 +4,4 @@ insert into wallets (
 select
     gen_random_uuid(),
     ceil(random() * 100000)
-from generate_series(1, 100) s(i)
+from generate_series(1, 1) s(i)

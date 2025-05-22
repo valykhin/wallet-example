@@ -6,10 +6,10 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import ru.ivalykhin.wallet.dto.WalletRequest;
 import ru.ivalykhin.wallet.dto.WalletResponse;
-import ru.ivalykhin.wallet.entity.Wallet;
 import ru.ivalykhin.wallet.service.WalletService;
 
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequestMapping("/api/v1/wallets")
@@ -18,12 +18,11 @@ public class WalletController {
     private final WalletService walletService;
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public WalletResponse operate(@RequestBody @Valid WalletRequest request) {
-        Wallet wallet = walletService.processOperation(
+    public WalletResponse operate(@RequestBody @Valid WalletRequest request) throws ExecutionException {
+        return walletService.publishOperation(
                 request.getWalletId(),
                 request.getOperationType(),
                 request.getAmount());
-        return new WalletResponse(wallet.getId(), wallet.getBalance());
     }
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)

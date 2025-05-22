@@ -9,6 +9,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultMatcher;
 import ru.ivalykhin.wallet.dto.WalletRequest;
+import ru.ivalykhin.wallet.dto.WalletResponse;
 import ru.ivalykhin.wallet.entity.OperationType;
 import ru.ivalykhin.wallet.entity.Wallet;
 import ru.ivalykhin.wallet.exception.InsufficientFundsExceptionWallet;
@@ -41,11 +42,14 @@ public class WalletControllerTest {
     @Test
     public void operate_DepositOperationType_success() throws Exception {
         WalletRequest walletRequest = createWalletRequest(OperationType.DEPOSIT);
-        Wallet wallet = createWallet(walletRequest);
-        when(walletService.processOperation(
+        WalletResponse walletResponse =
+                new WalletResponse(
+                        walletRequest.getWalletId(),
+                        walletRequest.getAmount());
+        when(walletService.publishOperation(
                 walletRequest.getWalletId(),
                 walletRequest.getOperationType(),
-                walletRequest.getAmount())).thenReturn(wallet);
+                walletRequest.getAmount())).thenReturn(walletResponse);
 
         mockMvc.perform(post(walletOperateEndpoint)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -60,7 +64,7 @@ public class WalletControllerTest {
                         }
                         """.formatted(walletRequest.getWalletId(), walletRequest.getAmount())));
         verify(walletService, times(1))
-                .processOperation(
+                .publishOperation(
                         walletRequest.getWalletId(),
                         walletRequest.getOperationType(),
                         walletRequest.getAmount());
@@ -69,11 +73,14 @@ public class WalletControllerTest {
     @Test
     public void operate_WithdrawOperationType_success() throws Exception {
         WalletRequest walletRequest = createWalletRequest(OperationType.WITHDRAW);
-        Wallet wallet = createWallet(walletRequest);
-        when(walletService.processOperation(
+        WalletResponse walletResponse =
+                new WalletResponse(
+                        walletRequest.getWalletId(),
+                        walletRequest.getAmount());
+        when(walletService.publishOperation(
                 walletRequest.getWalletId(),
                 walletRequest.getOperationType(),
-                walletRequest.getAmount())).thenReturn(wallet);
+                walletRequest.getAmount())).thenReturn(walletResponse);
 
         mockMvc.perform(post(walletOperateEndpoint)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -88,7 +95,7 @@ public class WalletControllerTest {
                         }
                         """.formatted(walletRequest.getWalletId(), walletRequest.getAmount())));
         verify(walletService, times(1))
-                .processOperation(
+                .publishOperation(
                         walletRequest.getWalletId(),
                         walletRequest.getOperationType(),
                         walletRequest.getAmount());
@@ -98,7 +105,7 @@ public class WalletControllerTest {
     public void operate_NotExistingWallet_returnErrorResponse() throws Exception {
         WalletRequest walletRequest = createWalletRequest(OperationType.WITHDRAW);
         WalletNotFoundException exception = new WalletNotFoundException(walletRequest.getWalletId());
-        when(walletService.processOperation(
+        when(walletService.publishOperation(
                 walletRequest.getWalletId(),
                 walletRequest.getOperationType(),
                 walletRequest.getAmount())
@@ -106,7 +113,7 @@ public class WalletControllerTest {
 
         performErrorOperateRequest(walletRequest, status().isNotFound(), exception);
         verify(walletService, times(1))
-                .processOperation(
+                .publishOperation(
                         walletRequest.getWalletId(),
                         walletRequest.getOperationType(),
                         walletRequest.getAmount());
@@ -116,7 +123,7 @@ public class WalletControllerTest {
     public void operate_WalletWIthInsufficientFunds_returnErrorResponse() throws Exception {
         WalletRequest walletRequest = createWalletRequest(OperationType.WITHDRAW);
         InsufficientFundsExceptionWallet exception = new InsufficientFundsExceptionWallet();
-        when(walletService.processOperation(
+        when(walletService.publishOperation(
                 walletRequest.getWalletId(),
                 walletRequest.getOperationType(),
                 walletRequest.getAmount())
@@ -124,7 +131,7 @@ public class WalletControllerTest {
 
         performErrorOperateRequest(walletRequest, status().isBadRequest(), exception);
         verify(walletService, times(1))
-                .processOperation(
+                .publishOperation(
                         walletRequest.getWalletId(),
                         walletRequest.getOperationType(),
                         walletRequest.getAmount());
@@ -134,7 +141,7 @@ public class WalletControllerTest {
     public void operate_NullOperationType_returnErrorResponse() throws Exception {
         WalletRequest walletRequest = createWalletRequest(OperationType.WITHDRAW);
         InvalidOperationExceptionWallet exception = new InvalidOperationExceptionWallet(null);
-        when(walletService.processOperation(
+        when(walletService.publishOperation(
                 walletRequest.getWalletId(),
                 walletRequest.getOperationType(),
                 walletRequest.getAmount())
@@ -142,7 +149,7 @@ public class WalletControllerTest {
 
         performErrorOperateRequest(walletRequest, status().isBadRequest(), exception);
         verify(walletService, times(1))
-                .processOperation(
+                .publishOperation(
                         walletRequest.getWalletId(),
                         walletRequest.getOperationType(),
                         walletRequest.getAmount());
@@ -215,7 +222,7 @@ public class WalletControllerTest {
     @Test
     public void operate_RuntimeExceptionHappens_returnErrorResponse() throws Exception {
         WalletRequest walletRequest = createWalletRequest(OperationType.WITHDRAW);
-        when(walletService.processOperation(
+        when(walletService.publishOperation(
                 walletRequest.getWalletId(),
                 walletRequest.getOperationType(),
                 walletRequest.getAmount())).thenThrow(new RuntimeException("test"));

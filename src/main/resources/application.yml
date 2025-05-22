@@ -11,15 +11,23 @@ spring:
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
+    auto-commit: false
     hikari:
-      maximum-pool-size: 50
+      maximum-pool-size: ${SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE}
       minimum-idle: 10
       idle-timeout: 30000
       max-lifetime: 1800000
-      connection-timeout: 5000
-      auto-commit: false
-      pool-name: HikariWalletPool
+      connection-timeout: ${SPRING_DATASOURCE_HIKARI_CONNECTION_TIMEOUT}
       validation-timeout: 3000
+  kafka:
+    enabled: true
+    properties:
+      security.protocol: PLAINTEXT
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
+    send-timeout-ms: ${SPRING_KAFKA_SEND_TIMEOUT_MS}
+    consumer:
+      group-id: wallet-service-group
+    wallet-operations-topic: wallet-operations
 
   liquibase:
     change-log: classpath:db/changelog/changelog-master.yml
@@ -28,6 +36,8 @@ spring:
 wallet:
   retry:
     optimistic-lock:
-      max-attempts: 5
-      delay: 10
-      multiplier: 1.5
+      max-attempts: ${WALLET_RETRY_OPTIMISTIC_LOCK_MAX_ATTEMPTS}
+      delay: ${WALLET_RETRY_OPTIMISTIC_LOCK_DELAY}
+      multiplier: ${WALLET_RETRY_OPTIMISTIC_LOCK_MULTIPLIER}
+  operation:
+    request-timeout: ${WALLET_RETRY_OPERATION_REQUEST_TIMEOUT}

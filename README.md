@@ -33,3 +33,9 @@
 ## Swagger
 /swagger-ui/index.html
 
+
+## Load testing
+- Insert test data
+- Prepare data for tank ammo
+- Start yandex tank container
+- Run load testing command: ```yandex-tank -c load.yaml```

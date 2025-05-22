@@ -34,7 +34,7 @@ public class WalletServiceTest {
     private Wallet wallet;
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws Exception {
         wallet = Wallet.builder()
                 .id(UUID.randomUUID())
                 .balance(1000L)
@@ -44,7 +44,7 @@ public class WalletServiceTest {
     }
 
     @Test
-    public void processOperation_DepositOperationType_success() {
+    public void processOperation_DepositOperationType_success() throws Exception {
         when(walletRepository.findById(wallet.getId())).thenReturn(Optional.of(wallet));
         when(walletRepository.save(wallet)).thenReturn(wallet);
 
@@ -56,7 +56,7 @@ public class WalletServiceTest {
     }
 
     @Test
-    public void processOperation_WithdrawOperationType_success() {
+    public void processOperation_WithdrawOperationType_success() throws Exception {
         when(walletRepository.findById(wallet.getId())).thenReturn(Optional.of(wallet));
         when(walletRepository.save(wallet)).thenReturn(wallet);
 
@@ -151,7 +151,7 @@ public class WalletServiceTest {
         verify(walletRepository, times(0)).save(wallet);
     }
 
-    private void mockRetryOnPerformOperation() {
+    private void mockRetryOnPerformOperation() throws Exception {
         when(optimisticLockRetryService.runWithRetry(any())).thenAnswer(invocation -> {
             RetryableOperation<Wallet> operation = invocation.getArgument(0);
             return operation.execute();

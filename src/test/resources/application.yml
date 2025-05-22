@@ -6,10 +6,27 @@ spring:
       hibernate:
         hbm2ddl.auto: update
         dialect: org.hibernate.dialect.PostgreSQLDialect
-
+  kafka:
+    enabled: false
+    properties:
+      security.protocol: PLAINTEXT
+    bootstrap-servers: localhost:29093
+    send-timeout-ms: 1000
+    consumer:
+      group-id: wallet-service-group
+    wallet-operations-topic: wallet-operations
   datasource:
     url: jdbc:h2:mem:test;DB_CLOSE_ON_EXIT=FALSE;
     username: "admin"
     password: ""
   liquibase:
     enabled: false
+
+wallet:
+  retry:
+    optimistic-lock:
+      max-attempts: 5
+      delay: 100
+      multiplier: 1.5
+  operation:
+    request-timeout: 60

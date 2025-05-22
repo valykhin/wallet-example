@@ -1,5 +1,5 @@
 package ru.ivalykhin.wallet.common.retry;
 
 public interface OptimisticLockRetryService {
-    <T> T runWithRetry(RetryableOperation<T> operation);
+    <T> T runWithRetry(RetryableOperation<T> operation) throws Exception;
 }

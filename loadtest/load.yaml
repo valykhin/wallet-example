@@ -1,8 +1,8 @@
 phantom:
-  address: 127.0.0.1:80
+  address: 192.168.1.101:80
   ammofile: ammofile.txt
   load_profile:
     load_type: rps
-    schedule: step(25, 5, 5, 60)
+    schedule: step(400, 100, 10, 10)
   headers:
     - "[]"

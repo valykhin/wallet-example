@@ -14,14 +14,14 @@ public class OptimisticLockRetryServiceTest {
     private OptimisticLockRetryServiceImpl retryService;
 
     @Test
-    void runWithRetry_FirstAttempt_success() {
+    void runWithRetry_FirstAttempt_success() throws Exception {
         RetryableOperation<String> op = () -> "Success";
         String result = retryService.runWithRetry(op);
         Assertions.assertEquals("Success", result);
     }
 
     @Test
-    void runWithRetry_SecondAttempt_success() {
+    void runWithRetry_SecondAttempt_success() throws Exception {
         AtomicInteger attempt = new AtomicInteger(0);
 
         RetryableOperation<String> op = () -> {
