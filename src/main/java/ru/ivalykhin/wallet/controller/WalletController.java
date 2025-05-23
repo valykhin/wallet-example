@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import ru.ivalykhin.wallet.dto.WalletOperationResponse;
 import ru.ivalykhin.wallet.dto.WalletRequest;
 import ru.ivalykhin.wallet.dto.WalletResponse;
 import ru.ivalykhin.wallet.service.WalletService;
@@ -18,7 +19,7 @@ public class WalletController {
     private final WalletService walletService;
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public WalletResponse operate(@RequestBody @Valid WalletRequest request) throws ExecutionException {
+    public WalletOperationResponse operate(@RequestBody @Valid WalletRequest request) throws ExecutionException {
         return walletService.publishOperation(
                 request.getWalletId(),
                 request.getOperationType(),

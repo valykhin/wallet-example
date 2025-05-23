@@ -8,8 +8,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultMatcher;
+import ru.ivalykhin.wallet.dto.WalletOperationResponse;
 import ru.ivalykhin.wallet.dto.WalletRequest;
-import ru.ivalykhin.wallet.dto.WalletResponse;
 import ru.ivalykhin.wallet.entity.OperationType;
 import ru.ivalykhin.wallet.entity.Wallet;
 import ru.ivalykhin.wallet.exception.InsufficientFundsExceptionWallet;
@@ -42,14 +42,15 @@ public class WalletControllerTest {
     @Test
     public void operate_DepositOperationType_success() throws Exception {
         WalletRequest walletRequest = createWalletRequest(OperationType.DEPOSIT);
-        WalletResponse walletResponse =
-                new WalletResponse(
+        UUID operationId = UUID.randomUUID();
+        WalletOperationResponse response =
+                new WalletOperationResponse(
                         walletRequest.getWalletId(),
-                        walletRequest.getAmount());
+                        operationId);
         when(walletService.publishOperation(
                 walletRequest.getWalletId(),
                 walletRequest.getOperationType(),
-                walletRequest.getAmount())).thenReturn(walletResponse);
+                walletRequest.getAmount())).thenReturn(response);
 
         mockMvc.perform(post(walletOperateEndpoint)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -60,9 +61,9 @@ public class WalletControllerTest {
                 .andExpect(content().json("""
                         {
                         "wallet_id": "%s",
-                        "balance": %d
+                        "operation_id": %s
                         }
-                        """.formatted(walletRequest.getWalletId(), walletRequest.getAmount())));
+                        """.formatted(walletRequest.getWalletId(), operationId)));
         verify(walletService, times(1))
                 .publishOperation(
                         walletRequest.getWalletId(),
@@ -73,14 +74,15 @@ public class WalletControllerTest {
     @Test
     public void operate_WithdrawOperationType_success() throws Exception {
         WalletRequest walletRequest = createWalletRequest(OperationType.WITHDRAW);
-        WalletResponse walletResponse =
-                new WalletResponse(
+        UUID operationId = UUID.randomUUID();
+        WalletOperationResponse response =
+                new WalletOperationResponse(
                         walletRequest.getWalletId(),
-                        walletRequest.getAmount());
+                        operationId);
         when(walletService.publishOperation(
                 walletRequest.getWalletId(),
                 walletRequest.getOperationType(),
-                walletRequest.getAmount())).thenReturn(walletResponse);
+                walletRequest.getAmount())).thenReturn(response);
 
         mockMvc.perform(post(walletOperateEndpoint)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -91,9 +93,9 @@ public class WalletControllerTest {
                 .andExpect(content().json("""
                         {
                         "wallet_id": "%s",
-                        "balance": %d
+                        "operation_id": %s
                         }
-                        """.formatted(walletRequest.getWalletId(), walletRequest.getAmount())));
+                        """.formatted(walletRequest.getWalletId(), operationId)));
         verify(walletService, times(1))
                 .publishOperation(
                         walletRequest.getWalletId(),
@@ -158,11 +160,6 @@ public class WalletControllerTest {
     @Test
     public void operate_InvalidOperationType_returnErrorResponse() throws Exception {
         WalletRequest walletRequest = createWalletRequest(OperationType.WITHDRAW);
-        Wallet wallet = createWallet(walletRequest);
-        when(walletService.processOperation(
-                walletRequest.getWalletId(),
-                walletRequest.getOperationType(),
-                walletRequest.getAmount())).thenReturn(wallet);
 
         mockMvc.perform(post(walletOperateEndpoint)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -190,11 +187,6 @@ public class WalletControllerTest {
     @Test
     public void operate_OperationZeroAmount_returnErrorResponse() throws Exception {
         WalletRequest walletRequest = createWalletRequest(OperationType.WITHDRAW);
-        Wallet wallet = createWallet(walletRequest);
-        when(walletService.processOperation(
-                walletRequest.getWalletId(),
-                walletRequest.getOperationType(),
-                walletRequest.getAmount())).thenReturn(wallet);
 
         mockMvc.perform(post(walletOperateEndpoint)
                         .contentType(MediaType.APPLICATION_JSON)

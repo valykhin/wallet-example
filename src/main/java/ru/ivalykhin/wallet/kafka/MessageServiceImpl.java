@@ -1,9 +1,9 @@
 package ru.ivalykhin.wallet.kafka;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.header.Headers;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.KafkaHeaders;
@@ -31,7 +31,6 @@ public class MessageServiceImpl implements MessageService {
     private Long sendTimeoutMs;
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
-    private final ObjectMapper objectMapper;
 
     public void sendMessage(ProducerRecord<String, Object> message) {
         if (!kafkaEnabled) {
@@ -40,13 +39,13 @@ public class MessageServiceImpl implements MessageService {
         try {
             var sendResult = kafkaTemplate.send(message).get(sendTimeoutMs, TimeUnit.MILLISECONDS);
             log.info("Sent message message_id={} with partition={}, offset={}",
-                    getMessageHeader(message, "message_id"),
+                    getHeader(message.headers(), "message_id"),
                     sendResult.getRecordMetadata().partition(),
                     sendResult.getRecordMetadata().offset());
 
         } catch (ExecutionException | TimeoutException | InterruptedException ex) {
             log.error("Unable to send message message_id={} due to : {}",
-                    getMessageHeader(message, "message_id"),
+                    getHeader(message.headers(), "message_id"),
                     ex.getMessage());
             throw new RuntimeException(ex);
         }
@@ -61,8 +60,8 @@ public class MessageServiceImpl implements MessageService {
         return record;
     }
 
-    private String getMessageHeader(ProducerRecord<String, Object> message, String key) {
-        return new String(message.headers().lastHeader(key).value(), UTF_8);
+    private String getHeader(Headers headers, String key) {
+        return new String(headers.lastHeader(key).value(), UTF_8);
     }
 
     public UUID getMessageId(ProducerRecord<String, Object> message) {
@@ -76,11 +75,11 @@ public class MessageServiceImpl implements MessageService {
         if (v instanceof byte[]) {
             return UUID.fromString(new String((byte[]) v, UTF_8));
         }
-        return null;
+        throw new RuntimeException("Kafka message does not contain message_id");
     }
 
     public void processMessage(Map<String, Object> messageHeaders, String messageBody) {
-        String messageId = messageHeaders.get("message_id").toString();
+        UUID messageId = getMessageId(messageHeaders);
         log.info("Message processing topic={}, partition={}, offset={}, message_id={}",
                 messageHeaders.get(KafkaHeaders.RECEIVED_TOPIC),
                 messageHeaders.get(KafkaHeaders.RECEIVED_PARTITION),

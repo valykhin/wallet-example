@@ -48,9 +48,9 @@ public class WalletServiceTest {
         when(walletRepository.findById(wallet.getId())).thenReturn(Optional.of(wallet));
         when(walletRepository.save(wallet)).thenReturn(wallet);
 
-        Wallet result = walletService
+        walletService
                 .processOperation(wallet.getId(), OperationType.DEPOSIT, wallet.getBalance());
-        Assertions.assertNotNull(result);
+
         verify(walletRepository, times(1)).findById(wallet.getId());
         verify(walletRepository, times(1)).save(wallet);
     }
@@ -60,9 +60,8 @@ public class WalletServiceTest {
         when(walletRepository.findById(wallet.getId())).thenReturn(Optional.of(wallet));
         when(walletRepository.save(wallet)).thenReturn(wallet);
 
-        Wallet result = walletService
+        walletService
                 .processOperation(wallet.getId(), OperationType.WITHDRAW, wallet.getBalance());
-        Assertions.assertNotNull(result);
         verify(walletRepository, times(1)).findById(wallet.getId());
         verify(walletRepository, times(1)).save(wallet);
     }
