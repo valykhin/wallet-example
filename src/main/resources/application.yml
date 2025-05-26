@@ -13,22 +13,22 @@ spring:
     driver-class-name: org.postgresql.Driver
     auto-commit: false
     hikari:
-      maximum-pool-size: ${SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE}
+      maximum-pool-size: ${SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE:50}
       minimum-idle: 10
       idle-timeout: 30000
       max-lifetime: 1800000
-      connection-timeout: ${SPRING_DATASOURCE_HIKARI_CONNECTION_TIMEOUT}
+      connection-timeout: ${SPRING_DATASOURCE_HIKARI_CONNECTION_TIMEOUT:5000}
       validation-timeout: 3000
   kafka:
     enabled: true
     properties:
       security.protocol: PLAINTEXT
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
-    send-timeout-ms: ${SPRING_KAFKA_SEND_TIMEOUT_MS}
+    send-timeout-ms: ${SPRING_KAFKA_SEND_TIMEOUT_MS:1000}
     consumer:
-      group-id: wallet-service-group
-    wallet-operations-topic: wallet-operations
-
+      group-id: ${SPRING_KAFKA_CONSUMER_GROUP_ID:wallet-service-group}
+      client-id: ${HOSTNAME:wallet-default}
+    wallet-operations-topic: ${SPRING_KAFKA_WALLET_OPERATIONS_TOPIC:wallet-operations}
   liquibase:
     change-log: classpath:db/changelog/changelog-master.yml
     enabled: true
@@ -39,5 +39,16 @@ wallet:
       max-attempts: ${WALLET_RETRY_OPTIMISTIC_LOCK_MAX_ATTEMPTS}
       delay: ${WALLET_RETRY_OPTIMISTIC_LOCK_DELAY}
       multiplier: ${WALLET_RETRY_OPTIMISTIC_LOCK_MULTIPLIER}
-  operation:
-    request-timeout: ${WALLET_RETRY_OPERATION_REQUEST_TIMEOUT}
+
+server:
+  tomcat:
+    max-keep-alive-requests: 200
+    connection-timeout: 3000
+    max-threads: 400
+
+info:
+  application:
+    name: ${spring.application.name}
+    description: Wallet application
+    version: '@project.version@'
+    spring-boot-version: '@project.parent.version@'

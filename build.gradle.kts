@@ -41,6 +41,8 @@ dependencies {
 	implementation("org.springframework.retry:spring-retry:2.0.11")
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8")
 
+	implementation("io.micrometer:micrometer-registry-prometheus:1.15.0")
+
 	implementation("org.liquibase:liquibase-core:4.31.1")
 	implementation("io.hypersistence:hypersistence-utils-hibernate-63:3.9.9")
 
@@ -56,6 +58,10 @@ dependencies {
 
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 	testRuntimeOnly("com.h2database:h2")
+}
+
+springBoot {
+	buildInfo()
 }
 
 tasks.withType<Test> {

@@ -1,7 +1,6 @@
 package ru.ivalykhin.wallet.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.ivalykhin.wallet.common.retry.OptimisticLockRetryService;
@@ -22,8 +21,6 @@ public class WalletService {
     private final WalletRepository walletRepository;
     private final OptimisticLockRetryService optimisticLockRetryService;
     private final WalletOperationEventProducer walletOperationEventProducer;
-    @Value(value = "${wallet.operation.request-timeout}")
-    private int walletOperationRequestTimeout;
 
 
     public WalletOperationResponse publishOperation(UUID walletId,
@@ -38,8 +35,8 @@ public class WalletService {
 
         UUID eventId = walletOperationEventProducer.sendWalletOperationEvent(walletOperationEvent);
 
-        //walletRepository.findById(walletId)
-               // .orElseThrow(() -> new WalletNotFoundException(walletId));
+        walletRepository.findById(walletId)
+                .orElseThrow(() -> new WalletNotFoundException(walletId));
 
         return WalletOperationResponse.builder()
                 .walletId(walletId)

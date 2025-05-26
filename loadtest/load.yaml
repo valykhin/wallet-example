@@ -1,8 +1,12 @@
 phantom:
   address: 192.168.1.101:80
   ammofile: ammofile.txt
+  instances: 500
   load_profile:
     load_type: rps
-    schedule: step(300, 800, 50, 10)
+    schedule: step(400, 800, 50, 10)
+  timeout: 30s
   headers:
     - "[]"
+telegraf:
+  enabled: false

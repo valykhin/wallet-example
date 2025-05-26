@@ -18,11 +18,10 @@ public class WalletOperationEventProducerImpl implements WalletOperationEventPro
     private String walletOperationsTopicName;
 
     public UUID sendWalletOperationEvent(WalletOperationEvent walletOperationEvent) {
-        UUID messageKey = walletOperationEvent.getWalletId();
         ProducerRecord<String, Object> message =
                 messageService.createMessage(
                         walletOperationsTopicName,
-                        messageKey.toString(),
+                        UUID.randomUUID().toString(),
                         walletOperationEvent);
         messageService.sendMessage(message);
         return messageService.getMessageId(message);

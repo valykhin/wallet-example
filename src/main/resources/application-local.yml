@@ -28,6 +28,7 @@ spring:
     send-timeout-ms: 1000
     consumer:
       group-id: wallet-service-group
+    client-id: ${HOSTNAME:wallet-default}
     wallet-operations-topic: wallet-operations
   liquibase:
     change-log: classpath:db/changelog/changelog-master.yml
@@ -39,9 +40,30 @@ wallet:
       max-attempts: 5
       delay: 100
       multiplier: 1.5
-  operation:
-    request-timeout: 60
+
+management:
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    enable:
+      jvm: true
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
 
 server:
+  tomcat:
+    max-keep-alive-requests: 200
+    connection-timeout: 3000
+    max-threads: 400
   port: 80
   address: 0.0.0.0
+
+info:
+  application:
+    name: ${spring.application.name}
+    description: Wallet application
+    version: '@project.version@'
+    spring-boot-version: '@project.parent.version@'
