@@ -1,1 +1,0 @@
-cat data | python3 make_ammo.py > ammofile.txt
