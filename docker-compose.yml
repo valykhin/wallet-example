@@ -21,8 +21,8 @@ services:
       WALLET_RETRY_OPTIMISTIC_LOCK_DELAY: ${WALLET_RETRY_OPTIMISTIC_LOCK_DELAY:-100}
       WALLET_RETRY_OPTIMISTIC_LOCK_MULTIPLIER: ${WALLET_RETRY_OPTIMISTIC_LOCK_MULTIPLIER:-1.5}
       MANAGEMENT_METRICS_EXPORT_PROMETHEUS_ENABLED: ${MANAGEMENT_METRICS_EXPORT_PROMETHEUS_ENABLED:-true}
-      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: ${MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE:-health,info,prometheus}
-      JAVA_OPTS: "-Xms512m -Xmx1024m"
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: ${MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE:-health,info,prometheus,metrics}
+      JAVA_OPTS: "-Xms1024m -Xmx1536m -XX:+UseG1GC"
       JAVA_TOOL_OPTIONS: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
     deploy:
       replicas: 2
@@ -61,10 +61,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.3'
+          cpus: '0.5'
           memory: 64Mb
         reservations:
-          cpus: '0.2'
+          cpus: '0.3'
           memory: 32Mb
 
   postgres:

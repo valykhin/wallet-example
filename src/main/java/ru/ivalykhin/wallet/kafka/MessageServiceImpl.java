@@ -36,17 +36,24 @@ public class MessageServiceImpl implements MessageService {
         if (!kafkaEnabled) {
             return;
         }
+
+        String messageId = getHeader(message.headers(), "message_id");
+
         try {
             var sendResult = kafkaTemplate.send(message).get(sendTimeoutMs, TimeUnit.MILLISECONDS);
-            log.info("Sent message message_id={} with partition={}, offset={}",
-                    getHeader(message.headers(), "message_id"),
+            log.info("Sent message message_id={} to topic={} partition={}, offset={}",
+                    messageId,
+                    sendResult.getRecordMetadata().topic(),
                     sendResult.getRecordMetadata().partition(),
                     sendResult.getRecordMetadata().offset());
-
-        } catch (ExecutionException | TimeoutException | InterruptedException ex) {
-            log.error("Unable to send message message_id={} due to : {}",
-                    getHeader(message.headers(), "message_id"),
-                    ex.getMessage());
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            log.error("Kafka send interrupted for message_id={} due to : {}",
+                    messageId, ex.getMessage());
+            throw new RuntimeException("Kafka send interrupted", ex);
+        } catch (ExecutionException | TimeoutException ex) {
+            log.error("Failed to send message message_id={} due to : {}",
+                    messageId, ex.getMessage());
             throw new RuntimeException(ex);
         }
     }
